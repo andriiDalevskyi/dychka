@@ -13,6 +13,7 @@ Digital sibling of Image-Line's **Gross Beat** as a VST3 / Standalone plug-in, b
 - **Controls**: EFFECT ON, SYNC (HOST locks the loops to the DAW position; INTERNAL runs on TEMPO / TAP), CUE, SMOOTH (0 = click-free cross-faded cuts for stutters, higher = tape-like pitch glides), volume ATTACK / RELEASE, MIX, output level.
 - **MIDI**: notes select slots — one range of 36 notes for TIME slots (default C4 … B6), another for VOLUME slots (default C1 … B3); momentary or latched per slot; the base notes are parameters.
 - **Files**: bank files with all 72 slots, single-envelope files, copy / paste as JSON, drag & drop onto the window; DAW projects store only the slots you changed.
+- **Gross Beat banks**: the eight factory Gross Beat presets (Patterns, Momentary, Stutter, Repeater, Turntablist, Juggling Science, Pitch shifter, Flanging) converted from FL Studio's `.fst` files with `tools/gb2dychka.py` — 440 slots in `banks/GrossBeat/`, ready for LOAD BANK.
 - Undo / Redo over envelope edits, typable knob fields, Ctrl+click reset, tooltips everywhere.
 
 ## Installation
@@ -50,6 +51,7 @@ Outputs: `build\Dychka_artefacts\Release\VST3\Dychka.vst3` and `build\Dychka_art
 
 - Bank: `Documents\Dychka Banks\<name>.dychka-bank.json` — all 36 + 36 slots.
 - Envelope: `<name>.dychka-envelope.json` — one envelope; the same JSON goes through the clipboard with Copy / Paste.
+- Gross Beat: `banks/GrossBeat/GB <preset>.dychka-bank.json` — converted factory presets. `python tools/gb2dychka.py "<FL Studio>\Data\Patches\Plugin presets\Effects\Gross Beat" banks/GrossBeat` regenerates them (and converts your own `.fst` presets). Hold steps, curves and jumps are exact; pulse / wave / stairs segments are expanded into points with an estimated cycle count and say so in the slot info.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the data formats, parameters and engine details, and `docs/` for the user manuals (EN / UA).
 
@@ -73,6 +75,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the data formats, parameters and engi
 - **Керування**: EFFECT ON, SYNC (HOST прив'язує цикли до позиції DAW; INTERNAL — TEMPO / TAP), CUE, SMOOTH (0 = чисті кросфейдові зрізи для статтерів, більше — «плівкові» гліди висоти), ATTACK / RELEASE гучності, MIX, вихідний рівень.
 - **MIDI**: ноти обирають слоти — діапазон із 36 нот для TIME (типово C4 … B6) і окремий для VOLUME (типово C1 … B3); моментально або з фіксацією на слот; базові ноти — параметри.
 - **Файли**: банки на всі 72 слоти, файли окремих обвідних, копіювання/вставка як JSON, drag & drop на вікно; проєкт DAW зберігає лише змінені слоти.
+- **Банки Gross Beat**: вісім фабричних пресетів Gross Beat (Patterns, Momentary, Stutter, Repeater, Turntablist, Juggling Science, Pitch shifter, Flanging), сконвертовані з `.fst`-файлів FL Studio скриптом `tools/gb2dychka.py` — 440 слотів у `banks/GrossBeat/`, відкриваються через LOAD BANK.
 - Undo / Redo правок обвідних, поля для введення значень ручок, Ctrl+клік скидає, підказки всюди.
 
 ## Встановлення

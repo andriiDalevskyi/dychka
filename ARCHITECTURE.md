@@ -33,7 +33,8 @@ editor with snap, hold steps and tension.
 CMakeLists.txt                  (plug-in + DychkaEngineTest console app)
 tests/EngineTest.cpp            (envelope maths, factory data, JSON / file round trips, engine behaviour, MIDI)
 docs/                           (manual_en.html, manual_uk.html, manual.css, img/, build-pdf.ps1 -> PDFs)
-tools/                          (make_icon.ps1, screenshot.ps1, crop.ps1)
+tools/                          (make_icon.ps1, screenshot.ps1, crop.ps1, gb2dychka.py - Gross Beat .fst -> bank JSON)
+banks/GrossBeat/                (the eight factory Gross Beat presets as Dychka banks, 440 slots)
 src/
   PluginProcessor.h/.cpp        (owner of the Bank + engine, parameters, undo, bank files, import/export, MIDI slot requests)
   PluginEditor.h/.cpp           (top-level layout 1100x720 fixed, file drop, footer, 30 Hz timer)
@@ -51,7 +52,7 @@ src/
 ```
 
 ## Data model (src/Model/EnvelopeModel.h — the contract)
-- `kNumSlots = 36` per kind, `kMaxPoints = 64`, `kMaxDelayBeats = 8` (TIME y = 1 → two bars back),
+- `kNumSlots = 36` per kind, `kMaxPoints = 512`, `kMaxDelayBeats = 8` (TIME y = 1 → two bars back),
   `kLengthChoices = {1, 2, 4, 8, 16}` beats, default length 8 (two bars, as in Gross Beat).
 - `EnvKind { time, volume }`; `flatValue (kind)` = 0 for TIME (no delay), 1 for VOLUME (full level).
 - `Point`: `x` 0..1 of the envelope length, `y` 0..1, `tension` −1..1 for the segment that starts at
@@ -61,7 +62,7 @@ src/
   the song grid), `hold` (MIDI latch), `points` sorted by x with `points[0].x == 0`.
   `valueAt (phase)`: segment = last point with x ≤ phase; hold → its y; after the last point → its
   y (tail hold); two points with the same x form a jump (the later one wins). `clampAll()` sorts,
-  clamps, anchors the first point at 0, keeps 1..64 points. Helpers `shift (dx)` (rotate with wrap,
+  clamps, anchors the first point at 0, keeps 1..512 points. Helpers `shift (dx)` (rotate with wrap,
   inserts the cut value at 0 and at 1), `flipX()`, `flipY()`. `Envelope::flat (kind)` = one point.
 - `Bank`: `name` + `slots[kind][36]`; `of (kind)`.
 - JSON envelope: `{ "format": "dychka-envelope", "version": 1, "kind": "time"|"volume", "name",
@@ -78,6 +79,17 @@ src/
   Chop 3-3-2, Trance gate 1 bar, Half-bar duck, Stutter fade, Random gate 2 bars. The rest = `Init` (flat).
   Time geometry: slope of the curve in beats-of-delay per beat = 1 − playback speed (0.5 → half
   speed, 1 → frozen, 2 → reverse, negative → faster than live); a staircase of hold steps repeats a slice.
+- **Gross Beat import** (`tools/gb2dychka.py`): a `.fst` preset is an FLP chunk file; event 213 holds
+  the plug-in state (48-byte header, 49 for format versions 3 / 8) followed by 72 slot records
+  (36 TIME, 36 VOLUME): name, 15 option bytes (byte 13 = restart on select → `retrigger`), three
+  int32 (3, 2 or 3, point count), points `{ double dx beats, double y, float tension, int32 mode }`,
+  int32 + 16 × 0xFF. One Gross Beat loop = 4 beats (`lengthBeats = 4`); TIME y = 1 is live and 0 is
+  two bars back (`y_dychka = 1 − y`), VOLUME y is the gain. A point's mode / tension describe the
+  segment ending at it: hold → `hold`, single curves → `tension = −t`, double curves / smooth → two
+  halves, half sine → tension ∓0.45, stairs → hold steps (exact count from the end value when the
+  staircase is a pure repeat, else `round (1 / t⁴)`), pulse → `2·C` hold steps (`C = 4N` for the named
+  `1/N Bt Gate` slots, else `round (1 / t⁴)`), wave → a triangle of `2·C + 1` linear steps. Older
+  format versions pack flags into the upper bytes of the mode (masked with 0xFF).
 
 ## Parameters (apvts, `dychka::ParamIDs`) — all automatable
 

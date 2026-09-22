@@ -21,7 +21,7 @@ namespace dychka
 {
 
 constexpr int kNumSlots       = 36;    // per kind (parameters "timeSlot" / "volSlot" 1..36)
-constexpr int kMaxPoints      = 64;
+constexpr int kMaxPoints      = 512;
 constexpr float kMaxDelayBeats = 8.0f; // TIME envelope: y = 1 -> 2 bars (8 quarter notes) back
 constexpr int kLengthChoices[] = { 1, 2, 4, 8, 16 }; // envelope length in beats
 constexpr int kNumLengthChoices = 5;

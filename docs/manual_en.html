@@ -115,6 +115,7 @@
   <tr><th>File</th><th>Content</th></tr>
   <tr><td><code>*.dychka-bank.json</code></td><td>All 36 + 36 slots. Default folder <code>Documents\Dychka Banks</code>. Loading replaces the slots the file lists.</td></tr>
   <tr><td><code>*.dychka-envelope.json</code></td><td>One envelope with its kind, length, RETRIG / HOLD flags and points (the same text COPY puts on the clipboard). Loading puts it into the current slot of its kind.</td></tr>
+  <tr><td><code>banks\GrossBeat\GB *.dychka-bank.json</code></td><td>The eight factory Gross Beat presets (Patterns, Momentary, Stutter, Repeater, Turntablist, Juggling Science, Pitch shifter, Flanging) converted from FL Studio — 440 slots with their original names. Load one with LOAD BANK. Hold steps, curves and jumps are exact; pulse, wave and stairs segments are expanded into points with an estimated cycle count and the slot info says <em>approximated</em>. <code>tools\gb2dychka.py</code> converts your own <code>.fst</code> presets the same way.</td></tr>
 </table>
 <p>Drop either kind of file onto the window: a teal frame shows the drop is accepted. Several envelope files fill consecutive slots.</p>
 
@@ -156,7 +157,7 @@
 <h2>10. Specifications</h2>
 <table>
   <tr><td>Formats</td><td>VST3 (effect, stereo in / out, MIDI in), Standalone. Windows 10/11 64-bit.</td></tr>
-  <tr><td>Envelopes</td><td>36 TIME + 36 VOLUME slots · up to 64 points each · tension curves, hold steps, jumps · length 1 beat … 4 bars · TIME range two bars of delay.</td></tr>
+  <tr><td>Envelopes</td><td>36 TIME + 36 VOLUME slots · up to 512 points each · tension curves, hold steps, jumps · length 1 beat … 4 bars · TIME range two bars of delay.</td></tr>
   <tr><td>Tempo</td><td>40 – 300 BPM internal; any host tempo, follows tempo changes (loops assume 4/4 from the song start).</td></tr>
   <tr><td>Latency</td><td>None reported. Read head interpolation: 4-point Hermite.</td></tr>
   <tr><td>License</td><td>GNU AGPL v3.0 or later. Dychka is not affiliated with Image-Line; "Gross Beat" and "FL Studio" are their trademarks.</td></tr>
