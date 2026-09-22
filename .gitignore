@@ -4,3 +4,5 @@ external/JUCE/
 .vs/
 CMakeUserPresets.json
 release/
+test/Backups/
+*.rpp-bak
