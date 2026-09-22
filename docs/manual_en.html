@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dychka — User Manual</title>
+<link rel="stylesheet" href="manual.css">
+</head>
+<body>
+
+<section class="cover">
+  <div class="brand">DYCHKA</div>
+  <h1>Dychka Time &amp; Volume Envelopes</h1>
+  <div class="sub">User Manual · VST3 &amp; Standalone · version 0.1.0</div>
+  <img src="img/ui_full.png" alt="Dychka main window">
+  <div class="meta">Digital sibling of Image-Line's Gross Beat · 36 + 36 envelope slots · 49 factory shapes · point / curve editor · MIDI slot selection · host-synced<br>Windows 10/11, 64-bit. Built with JUCE 8. Same family as Minigun, Pitarda and Diskach.</div>
+</section>
+
+<h2>1. What Dychka is</h2>
+<p>Dychka keeps the last <strong>two bars</strong> of the incoming audio in a buffer and plays it back through two envelopes that loop with the song position. The <strong>TIME envelope</strong> says how far behind the live input the read head sits at every moment: a horizontal line is a plain delay, a line going down is a slow-down (the head falls behind), a slope of exactly one beat per beat freezes the sound, a steeper line plays backwards, and a staircase repeats a slice — stutters, half-time, reverse, tape stops and scratches all come from the shape of that one line. The <strong>VOLUME envelope</strong> is a gain curve: gates, side-chain pumps, fades, tremolos.</p>
+<p>There are 36 slots of each kind. You select them by clicking, by DAW automation of the <em>Time Slot</em> / <em>Volume Slot</em> parameters, or by MIDI notes — momentarily while a key is held, or latched. Every slot is editable: click points onto a beat grid, bend the segments, make steps, and the result is heard immediately. 49 factory shapes cover the classics.</p>
+
+<h3>Installation</h3>
+<ul>
+  <li><strong>VST3</strong>: copy <code>Dychka.vst3</code> (the whole folder) to <code>C:\Program Files\Common Files\VST3\</code>, then rescan plug-ins in your DAW. Dychka is an <em>effect</em> (audio insert with MIDI input): it appears as <em>VST3: Dychka (Dallas Audio)</em> under FX / Delay.</li>
+  <li><strong>Standalone</strong>: run <code>Dychka.exe</code>. Use <em>Options → Audio/MIDI settings</em> to pick an audio device with an input and untick <em>Mute audio input</em>. Without a DAW there is no song position, so the envelopes free-run at the TEMPO knob.</li>
+</ul>
+<div class="note">Dychka reports no latency: with TIME slot 1 (<em>Off</em>) the signal passes through bit-exactly. The time effects read from the past, never from the future — that is why a reverse or half-time phrase can only span material that has already been played.</div>
+
+<h2 class="pagebreak">2. Interface overview</h2>
+<figure><img src="img/ui_full.png" alt="Main window"><figcaption>The fixed 1100 × 720 window. Everything is visible at once.</figcaption></figure>
+<ol class="callouts">
+  <li><strong>Header</strong> — slot display (TIME and VOLUME slot with names), Save / Load bank, Undo / Redo, BEAT and MIDI indicators, output meter, output level.</li>
+  <li><strong>Slots</strong> (left column) — the two 4 × 9 grids of TIME and VOLUME slots with a thumbnail of every envelope, the slot display and Import / Export, Copy / Paste / Reset.</li>
+  <li><strong>Envelope editor</strong> (centre) — TIME / VOLUME tabs, name, LENGTH, SNAP, the tool row and the canvas.</li>
+  <li><strong>Controls</strong> (right column) — EFFECT ON, tempo display with CUE and TAP, SYNC, the knobs, the MIDI slot mapping.</li>
+  <li><strong>Footer</strong> — bank file or the last message on the left; version, clock source, tempo, bar, the slots being played, the current delay and gain on the right.</li>
+</ol>
+
+<h2>3. Header</h2>
+<figure><img src="img/ui_header.png" alt="Header bar"></figure>
+<table>
+  <tr><th>Control</th><th>What it does</th></tr>
+  <tr><td>T / V display</td><td>The selected TIME slot and VOLUME slot with their names; the kind you are editing is shown in amber, <em>*</em> = edited compared with the factory shape.</td></tr>
+  <tr><td>SAVE BANK</td><td>Saves all 72 slots to a bank file. The first time it asks for a file (default folder <code>Documents\Dychka Banks</code>, extension <code>.dychka-bank.json</code>); after that it saves to the same file without asking. The DAW project also remembers your edits — a bank file is for sharing and for using the same shapes in several projects.</td></tr>
+  <tr><td>LOAD BANK</td><td>Opens a file: a bank replaces the slots it lists; an envelope file goes into the current slot of its kind (see §6).</td></tr>
+  <tr><td>UNDO / REDO</td><td>Step back and forward through envelope edits (a drag counts as one step; loads, pastes and resets too). <kbd>Ctrl</kbd>+<kbd>Z</kbd>, <kbd>Ctrl</kbd>+<kbd>Y</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> after clicking the window. Knobs are DAW parameters and are undone by the DAW.</td></tr>
+  <tr><td>BEAT</td><td>Flashes <span class="swatch" style="background:#e8503a"></span>red on beat 1 and <span class="swatch" style="background:#5fd36b"></span>green on the other beats while the effect is on.</td></tr>
+  <tr><td>MIDI</td><td>Lights teal when a MIDI note-on arrives.</td></tr>
+  <tr><td>OUT / knob</td><td>Eight-segment peak meter and the output level (−60 … +6 dB), applied to everything.</td></tr>
+</table>
+
+<h2 class="pagebreak">4. Slots</h2>
+<figure class="tall"><img src="img/ui_slots.png" alt="Slot panel"><figcaption>The left column: 36 TIME slots (amber) and 36 VOLUME slots (teal).</figcaption></figure>
+<p>Every cell shows the slot number and a thumbnail of its envelope. The <strong>amber-filled</strong> cell is the slot the engine is playing right now (brighter while a MIDI note holds it), the <strong>teal frame</strong> marks the slot shown in the editor, an amber dot means the slot differs from the factory shape. The caption above each grid shows the MIDI note range that selects its slots.</p>
+<ul>
+  <li><strong>Click</strong> a cell to select it for playing <em>and</em> editing — the selection is the <em>Time Slot</em> / <em>Volume Slot</em> parameter, so the DAW can automate it.</li>
+  <li><strong>Right-click</strong> a cell for its menu: Copy, Paste, Reset to factory, <em>Load factory shape</em> (the whole library of that kind), Export, Import.</li>
+  <li>Hover a cell to read its name and description in the slot display and in the tooltip.</li>
+</ul>
+<table>
+  <tr><th>Button</th><th>What it does</th></tr>
+  <tr><td>IMPORT</td><td>Loads an envelope file into the edited slot (or a bank file). You can also <strong>drop files onto the window</strong>; several envelope files land in consecutive slots.</td></tr>
+  <tr><td>EXPORT</td><td>Saves the edited slot as a <code>.dychka-envelope.json</code> file.</td></tr>
+  <tr><td>COPY / PASTE</td><td>Copies the envelope to the clipboard as JSON text and pastes it into another slot (also between two Dychka instances, or between a TIME and a VOLUME slot).</td></tr>
+  <tr><td>RESET</td><td>Back to the factory shape of that slot (flat for a user slot).</td></tr>
+</table>
+<div class="note">Slot 1 of each kind is <em>Off</em>: no time change, full level. Select it to switch that half of the effect off while the other keeps working.</div>
+
+<h2 class="pagebreak">5. Envelope editor</h2>
+<figure class="tall"><img src="img/ui_editor.png" alt="Envelope editor"><figcaption>The centre column edits the selected slot of the chosen kind. The amber line is the play head.</figcaption></figure>
+<h3>Reading a TIME envelope</h3>
+<p>The horizontal axis is time in beats (labels <em>bar.beat</em>), the length of the loop is set by LENGTH. The vertical axis is <strong>how far back</strong> the read head sits: <em>live</em> at the top, one bar back in the middle, two bars back at the bottom. The dashed diagonal guides have a slope of one beat per beat — a line along a guide is a <strong>frozen</strong> read head.</p>
+<table>
+  <tr><th>Shape</th><th>Result</th></tr>
+  <tr><td>Horizontal line at <em>live</em></td><td>Nothing happens (slot 1, <em>Off</em>).</td></tr>
+  <tr><td>Horizontal line lower down</td><td>A plain delay: everything arrives late by that amount, at normal speed (<em>Delay 1 beat</em>).</td></tr>
+  <tr><td>Line going down at half the guide slope</td><td>Half speed: the head falls one beat behind every two beats (<em>Half-time</em>). A quarter of the slope = quarter speed.</td></tr>
+  <tr><td>Line along a guide (slope 1)</td><td>Frozen — the head stays on one spot (<em>Freeze offbeat</em>).</td></tr>
+  <tr><td>Line twice as steep as the guides</td><td>Reverse at normal speed (<em>Reverse 1 bar</em>). 1.5 × the slope = reverse at half speed.</td></tr>
+  <tr><td>Line going <em>up</em> (towards live)</td><td>Faster than live — it has to start lower down, e.g. one bar back, and catch up (<em>Double-time</em>).</td></tr>
+  <tr><td>Staircase of hold steps</td><td>Every step jumps back by the step height: the slice between the steps is repeated — a <strong>stutter</strong> (<em>Stutter 1/16</em>: four steps of a sixteenth).</td></tr>
+  <tr><td>Curve that steepens towards slope 1</td><td>Slows down gradually and stops: a <strong>tape stop</strong>.</td></tr>
+</table>
+<p>When the loop wraps, the head jumps back to the value at the start — that is what restarts a half-time phrase every two bars. The info line under the canvas tells you the playback speed under the mouse (<em>speed 0.50x</em>, <em>frozen</em>, <em>reverse 1.00x</em>, <em>step</em>).</p>
+<h3>Reading a VOLUME envelope</h3>
+<p>The vertical axis is the gain, 100 % at the top, 0 % at the bottom. Hold steps make gates; ramps and curves make pumps, fades and swells. ATTACK and RELEASE (§7) round the edges.</p>
+
+<h3>Editing</h3>
+<ul>
+  <li><strong>Click</strong> on an empty spot adds a point (snapped to the grid) and lets you drag it right away.</li>
+  <li><strong>Drag a point</strong> to move it; it cannot pass its neighbours and the first point stays at the start. Hold <kbd>Shift</kbd> for free movement without snap. For TIME envelopes the vertical snap uses the same division in beats of delay, so an exact freeze line (one grid step down per grid step right) is easy to draw.</li>
+  <li><strong>Drag a segment</strong> (the curve between two points) up or down to bend it — the curve follows the mouse. The mouse wheel over a segment does the same in small steps.</li>
+  <li><strong>Double-click a segment</strong> to make it a <strong>hold</strong> step (it keeps the value of its first point until the next point) and back; hold points are drawn white.</li>
+  <li><strong>Double-click a point</strong> or press <kbd>Delete</kbd> to remove it (the first point cannot be removed). <strong>Right-click</strong> a point or a segment for the menu: delete, reset the value, hold / curve, straight segment, add a point.</li>
+  <li>Two points at the same position make a vertical <strong>jump</strong> — drag a point onto its neighbour's position to get one (the factory <em>Reverse 1/8</em> uses this).</li>
+</ul>
+<table>
+  <tr><th>Control</th><th>What it does</th></tr>
+  <tr><td>TIME / VOLUME</td><td>Which envelope you are editing (the slot grid follows).</td></tr>
+  <tr><td>Name</td><td>Envelope name (Return or click elsewhere to apply). It appears in the grid and the header.</td></tr>
+  <tr><td>LENGTH</td><td>Length of the loop: 1 beat, 2 beats, 1 bar, 2 bars or 4 bars. The TIME axis always spans two bars of delay, whatever the length.</td></tr>
+  <tr><td>SNAP</td><td>Grid for points: 1/4, 1/8, 1/16, 1/32, the triplets 1/12 and 1/24, or off.</td></tr>
+  <tr><td>◀ ▶</td><td>Rotate the envelope one snap step earlier / later (wrapping around).</td></tr>
+  <tr><td>FLIP / INV</td><td>Mirror the envelope in time / invert its values (TIME: mirror the delay, VOLUME: invert the gain).</td></tr>
+  <tr><td>CLEAR</td><td>Flat envelope — no effect, keeps the name.</td></tr>
+  <tr><td>INIT</td><td>Reset the slot to its factory shape (or flat for a user slot). Undo brings the edits back.</td></tr>
+  <tr><td>RETRIG</td><td>The envelope restarts from its beginning whenever this slot is selected — by click, automation or MIDI note. Off (default): the envelope follows the song grid, so a half-time selected in the middle of a phrase joins at the current position.</td></tr>
+  <tr><td>HOLD</td><td>A MIDI note that selects this slot keeps it selected after the key is released (latch). Off: the note is momentary and the previous slot returns on release.</td></tr>
+  <tr><td>LIBRARY</td><td>Load one of the factory shapes of this kind into the slot.</td></tr>
+</table>
+<div class="note">Edits are heard immediately and are stored in the DAW project (only the slots that differ from the factory bank are saved, so projects stay small). Save a bank file when you want to reuse the shapes elsewhere.</div>
+
+<h2 class="pagebreak">6. Files</h2>
+<table>
+  <tr><th>File</th><th>Content</th></tr>
+  <tr><td><code>*.dychka-bank.json</code></td><td>All 36 + 36 slots. Default folder <code>Documents\Dychka Banks</code>. Loading replaces the slots the file lists.</td></tr>
+  <tr><td><code>*.dychka-envelope.json</code></td><td>One envelope with its kind, length, RETRIG / HOLD flags and points (the same text COPY puts on the clipboard). Loading puts it into the current slot of its kind.</td></tr>
+</table>
+<p>Drop either kind of file onto the window: a teal frame shows the drop is accepted. Several envelope files fill consecutive slots.</p>
+
+<h2>7. Controls</h2>
+<figure class="tall"><img src="img/ui_controls.png" alt="Control panel"><figcaption>The right column.</figcaption></figure>
+<table>
+  <tr><th>Control</th><th>What it does</th></tr>
+  <tr><td>EFFECT ON</td><td>Off = clean bypass (6 ms crossfade, no clicks). Switching on restarts the envelopes.</td></tr>
+  <tr><td>Tempo display</td><td>The tempo the envelopes run at and where it comes from: <em>▶ HOST</em> (following the DAW position), <em>■ HOST</em> (transport stopped, free-running at the host tempo), <em>NO HOST</em> (standalone) or <em>INTERNAL</em>.</td></tr>
+  <tr><td>CUE</td><td>Restarts both envelopes from their start right now. Useful while the DAW is stopped or in INTERNAL sync.</td></tr>
+  <tr><td>TAP</td><td>Tap tempo: tap quarter notes. The first tap also restarts the envelopes; from the second tap on, TEMPO follows the mean interval. Taps more than two seconds apart start a new sequence.</td></tr>
+  <tr><td>SYNC</td><td><strong>HOST</strong>: the envelope loops are locked to the DAW song position — a two-bar shape always starts on an odd bar, at any tempo, with tempo changes and after locating (bars are counted from the song start in 4/4, as in Gross Beat). While the transport is stopped the envelopes keep running freely at the host tempo. <strong>INTERNAL</strong>: the TEMPO knob (or TAP) sets the clock; the DAW position is ignored.</td></tr>
+  <tr><td>SMOOTH</td><td>What happens when the TIME envelope jumps (a step, a wrap, a slot change). 0 = the read head jumps instantly and a 2 ms crossfade hides the click — clean, pitch-true stutters. Higher = the head glides to its new position over up to 60 ms — every jump becomes a short tape-like pitch swoop, and fast ramps are softened.</td></tr>
+  <tr><td>MIX</td><td>Dry … wet balance of the whole effect. 100 = effect only.</td></tr>
+  <tr><td>ATTACK / RELEASE</td><td>Rise / fall time of the VOLUME envelope in ms. 0 = hard edges; a few ms remove clicks from gates; longer values turn a gate into a pump.</td></tr>
+  <tr><td>TEMPO</td><td>40 – 300 BPM for INTERNAL sync (and the fallback tempo when there is no host).</td></tr>
+  <tr><td>TIME NOTES / VOLUME NOTES</td><td>Enable MIDI slot selection per kind and choose the <strong>base note</strong> = slot 1; the next 35 notes select slots 2 – 36. Defaults: TIME C4 – B6 (60 – 95), VOLUME C1 – B3 (24 – 59). Note numbers count from C-1 = 0, so C4 = 60 — FL Studio calls the same note C5.</td></tr>
+</table>
+
+<h2>8. MIDI</h2>
+<table>
+  <tr><th>Message</th><th>Function</th></tr>
+  <tr><td>Note-on in the TIME range</td><td>Selects that TIME slot immediately (sample-accurately); a RETRIG slot restarts. Lights the MIDI LED.</td></tr>
+  <tr><td>Note-on in the VOLUME range</td><td>Selects that VOLUME slot.</td></tr>
+  <tr><td>Note-off</td><td>Returns to the slot that was selected before the note — unless the slot has HOLD, then it stays until another note or a click.</td></tr>
+</table>
+<p>Route a MIDI track to the Dychka track in your DAW (in REAPER: send MIDI from the keys track to the Dychka track, or record the notes on the same track). All channels are accepted. The <em>Time Slot</em> / <em>Volume Slot</em> parameters follow the notes, so what you play can be recorded as automation too.</p>
+
+<h2>9. Tips</h2>
+<ul>
+  <li><strong>Trap half-time</strong>: TIME slot 3 (<em>Half-time 1 bar</em>) on the drum bus for the second half of a phrase; RETRIG off so it joins the bar cleanly.</li>
+  <li><strong>Fills</strong>: play <em>Stutter 1/16</em> (C4 + 12 = C5) and <em>Stutter 1/32</em> on the last beat of a bar from a MIDI keyboard; release to return.</li>
+  <li><strong>Tape stop at the end of a section</strong>: automate <em>Time Slot</em> to <em>Tape stop 1 bar</em> with RETRIG on so it starts from live speed exactly where the automation hits.</li>
+  <li><strong>Side-chain without a side-chain</strong>: VOLUME <em>Pump 1/4</em> on pads and bass, ATTACK 5 ms, RELEASE 30 ms.</li>
+  <li><strong>Exact freeze lines</strong>: SNAP 1/16 and move one grid step down per grid step right — the dashed guides show the way.</li>
+  <li><strong>Clean stutters</strong>: keep SMOOTH at 0. Raise it for glitchy vinyl-like slides.</li>
+</ul>
+
+<h2>10. Specifications</h2>
+<table>
+  <tr><td>Formats</td><td>VST3 (effect, stereo in / out, MIDI in), Standalone. Windows 10/11 64-bit.</td></tr>
+  <tr><td>Envelopes</td><td>36 TIME + 36 VOLUME slots · up to 64 points each · tension curves, hold steps, jumps · length 1 beat … 4 bars · TIME range two bars of delay.</td></tr>
+  <tr><td>Tempo</td><td>40 – 300 BPM internal; any host tempo, follows tempo changes (loops assume 4/4 from the song start).</td></tr>
+  <tr><td>Latency</td><td>None reported. Read head interpolation: 4-point Hermite.</td></tr>
+  <tr><td>License</td><td>GNU AGPL v3.0 or later. Dychka is not affiliated with Image-Line; "Gross Beat" and "FL Studio" are their trademarks.</td></tr>
+</table>
+
+</body>
+</html>

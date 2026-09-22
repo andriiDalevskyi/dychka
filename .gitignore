@@ -1,0 +1,6 @@
+build/
+external/JUCE/
+*.log
+.vs/
+CMakeUserPresets.json
+release/
